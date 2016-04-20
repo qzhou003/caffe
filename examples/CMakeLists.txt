@@ -1,3 +1,4 @@
+cmake_minimum_required(VERSION 3.2)
 file(GLOB_RECURSE examples_srcs "${PROJECT_SOURCE_DIR}/examples/*.cpp")
 
 foreach(source_file ${examples_srcs})
@@ -9,7 +10,7 @@ foreach(source_file ${examples_srcs})
   get_filename_component(folder ${path} NAME_WE)
     
   add_executable(${name} ${source_file})
-  target_link_libraries(${name} ${Caffe_LINK})
+  target_link_libraries(${name} ${Caffe_LINK} ${OpenCV_LIBS})
   caffe_default_properties(${name})
 
   # set back RUNTIME_OUTPUT_DIRECTORY
