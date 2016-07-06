@@ -1,6 +1,6 @@
 import os
 import time
-import cPickle
+import _pickle
 import datetime
 import logging
 import flask
@@ -11,11 +11,18 @@ import tornado.httpserver
 import numpy as np
 import pandas as pd
 from PIL import Image
-import cStringIO as StringIO
 import urllib
 import exifutil
 
+import sys
+sys.path.append('/Users/qizhou/Documents/git/caffe/python/')
+
 import caffe
+
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
 
 REPO_DIRNAME = os.path.abspath(os.path.dirname(os.path.abspath(__file__)) + '/../..')
 UPLOAD_FOLDER = '/tmp/caffe_demos_uploads'
