@@ -1,3 +1,4 @@
+cmake_minimum_required(VERSION 3.2)
 file(GLOB_RECURSE examples_srcs "${PROJECT_SOURCE_DIR}/examples/*.cpp")
 
 foreach(source_file ${examples_srcs})

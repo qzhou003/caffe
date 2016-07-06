@@ -1,5 +1,6 @@
 #include <caffe/caffe.hpp>
 #ifdef USE_OPENCV
+#include "opencv2/videoio.hpp" // newly added for videocaputure 
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
@@ -18,7 +19,7 @@ using namespace caffe;  // NOLINT(build/namespaces)
 using std::string;
 
 /* Pair (label, confidence) representing a prediction. */
-typedef std::pair<string, float> Prediction;
+typedef std::pair<string, float> Prediction; 
 
 class Classifier {
  public:
@@ -245,6 +246,7 @@ int main(int argc, char** argv) {
   Classifier classifier(model_file, trained_file, mean_file, label_file);
 
   string file = argv[5];
+<<<<<<< HEAD
   std::cout << "---------- Prediction for "
             << file << " ----------" << std::endl;
 
@@ -264,10 +266,47 @@ int main(int argc, char** argv) {
 
     /* Print the top N predictions. */
     cv::Point start=cv::Point(20,0);
+=======
+  if(file=="0"){
+      cv::VideoCapture stream(0);
+      stream.set(CV_CAP_PROP_FRAME_WIDTH, 640);
+      stream.set(CV_CAP_PROP_FRAME_HEIGHT, 480);
+      stream.set(CV_CAP_PROP_FPS, 30);
+
+      cv::Mat img;
+      while(true){
+        if(!stream.read(img)) {std::cout << "cannot read frame"; break;}
+        CHECK(!img.empty()) << "Unable to decode image " << file;
+        std::vector<Prediction> predictions = classifier.Classify(img);
+
+        /* Print the top N predictions. */
+        cv::Point st(20,20);
+        cv::Point next(0,20);
+        for (size_t i = 0; i < predictions.size(); ++i) {
+          Prediction p = predictions[i];
+          std::cout << std::fixed << std::setprecision(4) << p.second << " - \""
+                    << p.first << "\"" << std::endl;         
+          cv::putText(img,p.first,st,cv::FONT_HERSHEY_PLAIN, 1, cvScalar(0,255,255), 1, CV_AA);
+          st = st+next;
+        }
+        cv::imshow("output",img);
+        cv::waitKey(10);
+        std::cout << " ---------------------------------------------- " << std::endl;
+      }
+  }else {
+    std::cout << "---------- Prediction for "
+              << file << " ----------" << std::endl;
+    cv::Mat img = cv::imread(file, -1);
+    CHECK(!img.empty()) << "Unable to decode image " << file;
+    std::vector<Prediction> predictions = classifier.Classify(img);
+
+    /* Print the top N predictions. */
+>>>>>>> 9cdc75e55641661864700e5c972819833e3e37c3
     for (size_t i = 0; i < predictions.size(); ++i) {
       Prediction p = predictions[i];
       std::cout << std::fixed << std::setprecision(4) << p.second << " - \""
                 << p.first << "\"" << std::endl;
+<<<<<<< HEAD
        char str[100];
       // sprintf(str,p.second + " - \"" +)
       string detection = std::to_string(p.second) + " - " + p.first;
@@ -275,7 +314,23 @@ int main(int argc, char** argv) {
       putText(img,detection,start,cv::FONT_HERSHEY_PLAIN, 1, cv::Scalar(0,255,255), 1, CV_AA);
     }
     cv::imshow("classification",img);
+=======
+    }
+>>>>>>> 9cdc75e55641661864700e5c972819833e3e37c3
   }
+
+  // std::cout << "---------- Prediction for "
+  //           << file << " ----------" << std::endl;
+  // cv::Mat img = cv::imread(file, -1);
+  // CHECK(!img.empty()) << "Unable to decode image " << file;
+  // std::vector<Prediction> predictions = classifier.Classify(img);
+
+  // /* Print the top N predictions. */
+  // for (size_t i = 0; i < predictions.size(); ++i) {
+  //   Prediction p = predictions[i];
+  //   std::cout << std::fixed << std::setprecision(4) << p.second << " - \""
+  //             << p.first << "\"" << std::endl;
+  // }
 }
 #else
 int main(int argc, char** argv) {
