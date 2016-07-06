@@ -1,6 +1,11 @@
 import os
 import time
-import _pickle
+
+try:
+   import cPickle as pickle
+except:
+   import pickle
+
 import datetime
 import logging
 import flask
