@@ -3,6 +3,8 @@
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
+// #include <opencv2/highgui/videoio.hpp>
+// #include "opencv/opencv.hpp"
 #endif  // USE_OPENCV
 #include <algorithm>
 #include <iosfwd>
@@ -243,19 +245,36 @@ int main(int argc, char** argv) {
   Classifier classifier(model_file, trained_file, mean_file, label_file);
 
   string file = argv[5];
-
   std::cout << "---------- Prediction for "
             << file << " ----------" << std::endl;
 
-  cv::Mat img = cv::imread(file, -1);
-  CHECK(!img.empty()) << "Unable to decode image " << file;
-  std::vector<Prediction> predictions = classifier.Classify(img);
+  // cv::Mat img = cv::imread(file, -1);
+  cv::Mat img;
+  cv::VideoCapture stream(0);
+  stream.set(CV_CAP_PROP_FRAME_WIDTH, 640);
+  stream.set(CV_CAP_PROP_FRAME_HEIGHT, 480);
+  stream.set(CV_CAP_PROP_FPS, 30);
+  cv::namedWindow("classification");
+  while(true){
+    char k = cv::waitKey(20);
+    if(k=='q') break;
+    stream.read(img);
+    CHECK(!img.empty()) << "Unable to decode image " << file; 
+    std::vector<Prediction> predictions = classifier.Classify(img);
 
-  /* Print the top N predictions. */
-  for (size_t i = 0; i < predictions.size(); ++i) {
-    Prediction p = predictions[i];
-    std::cout << std::fixed << std::setprecision(4) << p.second << " - \""
-              << p.first << "\"" << std::endl;
+    /* Print the top N predictions. */
+    cv::Point start=cv::Point(20,0);
+    for (size_t i = 0; i < predictions.size(); ++i) {
+      Prediction p = predictions[i];
+      std::cout << std::fixed << std::setprecision(4) << p.second << " - \""
+                << p.first << "\"" << std::endl;
+       char str[100];
+      // sprintf(str,p.second + " - \"" +)
+      string detection = std::to_string(p.second) + " - " + p.first;
+      start += cv::Point(0,20);
+      putText(img,detection,start,cv::FONT_HERSHEY_PLAIN, 1, cv::Scalar(0,255,255), 1, CV_AA);
+    }
+    cv::imshow("classification",img);
   }
 }
 #else
